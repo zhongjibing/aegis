@@ -42,7 +42,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
                 .scopes("read", "write", "trust")
                 .secret("secret")
-                .accessTokenValiditySeconds(120).
+                .accessTokenValiditySeconds(600).
                 refreshTokenValiditySeconds(600);
     }
 
@@ -57,7 +57,9 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-        oauthServer.realm(REALM + "/client");
+        oauthServer
+                .realm(REALM + "/client")
+                .checkTokenAccess("isAuthenticated()");
     }
 
 }

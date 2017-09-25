@@ -1,17 +1,13 @@
 package com.icezhg.aegis.controller;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Map;
 
-import com.icezhg.aegis.util.HttpClientFactory;
+import com.icezhg.aegis.domain.AuthTokenInfo;
+import com.icezhg.aegis.util.JsonUtil;
+import com.icezhg.aegis.util.RestUtil;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +19,8 @@ public class AuthController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
 
     @RequestMapping("/auth")
-    public void token(@RequestParam Map<String, String> parameters) {
+    public AuthTokenInfo token(@RequestParam Map<String, String> parameters) {
         LOGGER.info("param: {}", parameters);
-
-        CloseableHttpClient httpClient = HttpClientFactory.simpleHttpClient();
 
         try {
             String code = parameters.get("code");
@@ -36,24 +30,17 @@ public class AuthController {
             String auth = "my-trusted-client:secret";
             String base64String = Base64.encodeBase64String(auth.getBytes("UTF-8"));
             get.addHeader("Authorization", "Basic " + base64String);
-            CloseableHttpResponse response = httpClient.execute(get);
-
-            int statusCode = response.getStatusLine().getStatusCode();
-            LOGGER.info("response status: {}", statusCode);
-
-            InputStream stream = response.getEntity().getContent();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            StringBuilder result = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                result.append(line);
-            }
-            reader.close();
+            String result = RestUtil.execute(get);
 
             LOGGER.info("result: {}", result);
+
+            AuthTokenInfo tokenInfo = JsonUtil.toBean(result, AuthTokenInfo.class);
+            LOGGER.info("tokenInfo:{}", tokenInfo);
+            return tokenInfo;
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
         }
+
+        return null;
     }
 }

@@ -22,7 +22,7 @@ public class AegisApplication {
     public FilterRegistrationBean corsFilter() {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(new CORSFilter());
-        registrationBean.setName("CORSFilter2");
+        registrationBean.setName("CORSFilter");
         registrationBean.setUrlPatterns(Collections.singletonList("/*"));
         return registrationBean;
     }
